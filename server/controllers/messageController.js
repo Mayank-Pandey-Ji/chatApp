@@ -6,7 +6,7 @@ import {io  , userSocketMap} from '../server.js'
 
 export const getUsersForSidebar = async (req , res)=>{
     try {
-        const userId = req.user._id;
+        const userId = req.user._id.toString();
         const filterUsers = await User.find({_id : {$ne:userId}}).select("-password");
 
         // count number of messages not seen 
@@ -35,7 +35,7 @@ export const getUsersForSidebar = async (req , res)=>{
 export const getMessages = async (req , res)=>{
     try{
         const { id: selectedUserId } = req.params;
-        const myId = req.user._id;
+        const myId = req.user._id.toString();
 
         const messages = await Message.find({
             $or: [
@@ -66,7 +66,7 @@ export const markMessageAsSeen  = async (req,res) => {
     }
     catch(error)
     {
-        console.log(error.message);
+        console.log(error.message );
         res.json({success : false , message :error.message})
     }
 }
@@ -96,7 +96,7 @@ export const sendMessage = async (req,res)=>{
         const receiverSocketId = userSocketMap[receiverId];
         if(receiverSocketId)
         {
-            io.to(receiverSocketId).emit("newMessage", newMessage)
+            io.to(receiverSocketId).emit("newMessage", newMessage.toObject ? newMessage.toObject() : newMessage)
         }
 
         res.json({success:true, newMessage})
